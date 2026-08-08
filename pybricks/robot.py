@@ -10,7 +10,7 @@ class Robot:
         self.hub = PrimeHub()
         self.left_motor = Motor(Port.F, Direction.COUNTERCLOCKWISE)
         self.right_motor = Motor(Port.B, Direction.CLOCKWISE)
-        self.right_attachment = Motor(Port.A, Direction.CLOCKWISE, [20, 12])
+        self.right_attachment = Motor(Port.A, Direction.CLOCKWISE, [12, 48, 32])
         self.left_attachment = Motor(Port.D, Direction.CLOCKWISE, [20, 20])
         self.drive_base = DriveBase(self.left_motor, self.right_motor, wheel_diameter=62, axle_track=140)
         self.left_color = ColorSensor(Port.E)
@@ -21,13 +21,21 @@ class Robot:
         self.right_color.detectable_colors([Color.WHITE, Color.NONE])
 
 # function
-    async def move(self, distance, speed=150):
+    def move(self, distance, speed=150):
         self.drive_base.settings(speed, 300, 200, 325)
         self.drive_base.reset(0,0)
         wait(50)
-        await self.drive_base.straight(distance, then=Stop.HOLD, wait=True)
+        self.drive_base.straight(distance, then=Stop.HOLD, wait=True)
         self.drive_base.stop()
         print("stop")
+
+    async def async_move(self, distance, speed=150):
+        self.drive_base.settings(speed, 300, 200, 325)
+        self.drive_base.reset(0,0)
+        wait(50)
+        await self.drive_base.straight(distance, then=Stop.COAST, wait=True)
+        self.drive_base.stop()
+        print("async stop")
 
     def turn(self, angle, speed=150):
         self.drive_base.settings(150, 300, speed, 325)
@@ -156,7 +164,11 @@ class Robot:
     def left_attachment_turn(self, angle, speed=300):
         self.left_attachment.run_angle(speed, angle)
 
+    async def async_right_attachment_turn(self, angle, speed=300):
+        await self.right_attachment.run_angle(speed, angle)
+        print("never gonna let you down")
+
     async def right_attachment_reset(self):
-        print("bob")
-        await self.right_attachment.run_until_stalled(700, duty_limit=40)
         print("never gonna give you up")
+        await self.right_attachment.run_until_stalled(700, then=Stop.COAST, duty_limit=40)
+        self.right_attachment.reset_angle(0)

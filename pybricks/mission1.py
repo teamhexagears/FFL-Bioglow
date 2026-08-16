@@ -1,2 +1,2 @@
 def m1(robot):
-    robot.turn(360)
+    robot.left_attachment_reset()

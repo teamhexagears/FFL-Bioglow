@@ -12,7 +12,6 @@ robot = Robot()
 
 original = [1, 2, 3, 4, 5]
 options = original
-m4(robot)
 while True:
     # select list
     selected = hub_menu(*options)

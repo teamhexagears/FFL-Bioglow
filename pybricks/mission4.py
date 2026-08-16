@@ -1,6 +1,7 @@
-from pybricks.tools import multitask, run_task, wait, hub_menu
+from pybricks.tools import multitask
+
 async def m4(robot):
     await multitask(
-        robot.right_attachment_reset(),
-        robot.move(1000)
+        robot.left_attachment_reset(),
+        robot.parallel_move(1000)
     )

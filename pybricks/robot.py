@@ -21,13 +21,20 @@ class Robot:
         self.right_color.detectable_colors([Color.WHITE, Color.NONE])
 
 # function
-    async def move(self, distance, speed=150):
+
+    def move(self, distance, speed=150):
         self.drive_base.settings(speed, 300, 200, 325)
         self.drive_base.reset(0,0)
         wait(50)
+        self.drive_base.straight(distance, then=Stop.HOLD, wait=True)
+        self.drive_base.stop()
+
+    async def parallel_move(self, distance, speed=150):
+        self.drive_base.settings(speed, 300, 200, 325)
+        self.drive_base.reset(0,0)
+        await wait(50)
         await self.drive_base.straight(distance, then=Stop.HOLD, wait=True)
         self.drive_base.stop()
-        print("stop")
 
     def turn(self, angle, speed=150):
         self.drive_base.settings(150, 300, speed, 325)
@@ -36,16 +43,16 @@ class Robot:
         self.drive_base.turn(angle, then=Stop.HOLD, wait=True)
         self.drive_base.stop()
 
-    def move_till_stalled(self, speed=50):
+    async def move_till_stalled(self, speed=150):
         max_voltage=14000
         self.left_motor.settings(max_voltage/2)
         self.right_motor.settings(max_voltage/2)
-        self.drive_base.drive(speed, 0)
+        await self.drive_base.drive(speed, 0)
         heading=self.hub.imu.heading()
         prev=0
         diff=67
         wait(500)
-        while(diff>0.003):
+        while(diff>0.1):
             heading=self.hub.imu.heading()
             diff=abs(prev-heading)
             print(diff)
@@ -157,6 +164,7 @@ class Robot:
         self.left_attachment.run_angle(speed, angle)
 
     async def right_attachment_reset(self):
-        print("bob")
         await self.right_attachment.run_until_stalled(700, duty_limit=40)
-        print("never gonna give you up")
+
+    async def left_attachment_reset(self):
+        await self.left_attachment.run_until_stalled(700, duty_limit=40)
